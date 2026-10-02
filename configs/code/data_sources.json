@@ -1,0 +1,30 @@
+[
+  {
+    "key": "codereasoner",
+    "repository": "just-for-paper-submission/CodeReasoner-Dataset",
+    "revision": "08c784b2aa0e58e511c0cfdbdf61a61380a8c92f",
+    "remote_path": "dataset_rl.json",
+    "local_filename": "codereasoner_dataset_rl_08c784b2.json",
+    "sha256": "2d4e18fa896bd8c84b54f4a1ae521d9e379f7589efe314822d50e5b352295d9b",
+    "url": "https://huggingface.co/datasets/just-for-paper-submission/CodeReasoner-Dataset/resolve/08c784b2aa0e58e511c0cfdbdf61a61380a8c92f/dataset_rl.json"
+  },
+  {
+    "key": "cruxeval",
+    "repository": "cruxeval-org/cruxeval",
+    "revision": "b96af0450242eb4da433032b90998f25588a5d0f",
+    "remote_path": "test.jsonl",
+    "local_filename": "cruxeval_test_b96af045.jsonl",
+    "sha256": "8368b81047dc5014e4caf5a2f97604eff7644e0ecd7415e3ceeb184bbc2e0c96",
+    "url": "https://huggingface.co/datasets/cruxeval-org/cruxeval/resolve/b96af0450242eb4da433032b90998f25588a5d0f/test.jsonl"
+  },
+  {
+    "key": "livecodebench",
+    "repository": "livecodebench/execution-v2",
+    "revision": "ff6ea0e2a638001006ddcc41259eff23a4283fb2",
+    "remote_path": "data/test-00000-of-00001.parquet",
+    "local_filename": "livecodebench_execution_v2_ff6ea0e2.parquet",
+    "sha256": "c54e4377642f689758c2ee8664457af1b95ba95813a18208003c7a5a1efa410f",
+    "url": "https://huggingface.co/datasets/livecodebench/execution-v2/resolve/ff6ea0e2a638001006ddcc41259eff23a4283fb2/data/test-00000-of-00001.parquet"
+  }
+]
+

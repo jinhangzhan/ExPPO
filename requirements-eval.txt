@@ -1,0 +1,6 @@
+# Separate environment: SymPy's LaTeX parser uses ANTLR 4.11.
+-r requirements-common.txt
+antlr4-python3-runtime==4.11.1
+math-verify==0.8.0
+latex2sympy2_extended==1.10.2
+langdetect==1.0.9

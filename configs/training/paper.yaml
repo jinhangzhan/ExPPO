@@ -1,0 +1,158 @@
+# The synchronous training settings used for the paper.
+defaults:
+  - ppo_trainer
+  - _self_
+
+hydra:
+  searchpath:
+    - file://third_party/verl/verl/trainer/config
+  run:
+    dir: outputs/hydra/${trainer.experiment_name}
+  job:
+    chdir: false
+
+data:
+  train_files: data/train/dapo_math_17k.parquet
+  val_files: ${data.train_files}
+  cache_dir: .cache/verl/data
+  prompt_key: prompt
+  truncation: left
+  filter_overlong_prompts: true
+  filter_overlong_prompts_workers: 8
+  max_prompt_length: 2048
+  max_response_length: 10240
+  train_batch_size: 64
+  # Non-DAPO: 32 prompts/update. DAPO collects candidate batches of 32 until
+  # train_batch_size=64 informative prompt groups are available for one update.
+  gen_batch_size: 32
+  seed: 42
+
+actor_rollout_ref:
+  nccl_timeout: 7200
+  model:
+    path: Qwen/Qwen2.5-7B-Instruct
+    use_remove_padding: true
+    enable_gradient_checkpointing: true
+  actor:
+    strategy: fsdp
+    use_kl_loss: false
+    kl_loss_coef: 0.0
+    kl_loss_type: low_var_kl
+    policy_loss:
+      loss_mode: vanilla
+    clip_ratio_low: 0.2
+    clip_ratio_high: 0.2
+    clip_ratio_c: 10.0
+    entropy_coeff: 0.0
+    entropy_from_logits_with_chunking: false
+    entropy_checkpointing: false
+    use_dynamic_bsz: true
+    ppo_max_token_len_per_gpu: 36864
+    ppo_mini_batch_size: 32
+    data_loader_seed: 42
+    grad_clip: 1.0
+    loss_agg_mode: token-mean
+    ulysses_sequence_parallel_size: 1
+    use_torch_compile: false
+    optim:
+      lr: 1.0e-6
+      lr_warmup_steps: 10
+      weight_decay: 0.1
+    fsdp_config:
+      use_torch_compile: false
+      param_offload: false
+      optimizer_offload: false
+      fsdp_size: -1
+    checkpoint:
+      # Store optimizer state as well, so restarts retain AdamW state.
+      save_contents: [model, optimizer, extra]
+      load_contents: [model, optimizer, extra]
+  ref:
+    use_torch_compile: false
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: 36864
+    ulysses_sequence_parallel_size: 1
+    fsdp_config:
+      use_torch_compile: false
+      param_offload: false
+  rollout:
+    name: vllm
+    mode: async
+    n: 16
+    max_num_seqs: 32
+    temperature: 1.0
+    top_p: 1.0
+    top_k: -1
+    tensor_model_parallel_size: 1
+    gpu_memory_utilization: 0.80
+    enable_chunked_prefill: true
+    max_num_batched_tokens: 12288
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: 36864
+    checkpoint_engine:
+      update_weights_bucket_megabytes: 2560
+    engine_kwargs:
+      vllm:
+        seed: 42
+    val_kwargs:
+      temperature: 1.0
+      top_p: 0.7
+      top_k: -1
+      do_sample: true
+      n: 1
+
+algorithm:
+  adv_estimator: grpo
+  norm_adv_by_std_in_grpo: true
+  use_kl_in_reward: false
+  kl_ctrl:
+    kl_coef: 0.0
+  grpo_adv_reweight_enable: false
+  grpo_adv_reweight_lambda: 0.2
+  grpo_adv_reweight_eps: 1.0e-8
+  grpo_adv_reweight_min: 0.0
+  grpo_adv_reweight_debug: false
+  grpo_adv_reweight_gate_enabled: true
+  grpo_adv_reweight_tanh_enabled: true
+  grpo_adv_reweight_final_normalization_enabled: true
+  grpo_adv_reweight_sign: both
+  grpo_unlikeliness_enable: false
+  grpo_unlikeliness_rank_beta: 0.25
+  f_grpo_enable: false
+  f_grpo_gamma: 0.5
+  f_grpo_reward_correct: 1.0
+  f_grpo_reward_wrong: 0.0
+  repo_r_enable: false
+  repo_r_zeta_init: 0.001
+  repo_r_zeta_min: 0.0001
+  repo_r_zeta_max: 0.05
+  filter_groups:
+    _target_: verl.trainer.config.FilterGroupsConfig
+    enable: false
+    metric: null
+    # Fail clearly if an update cannot fill its batch; 0 disables this limit.
+    max_num_gen_batches: 32
+
+reward_model:
+  reward_manager: naive
+  overlong_buffer:
+    enable: false
+    len: 2048
+    penalty_factor: 1.0
+    log: true
+
+trainer:
+  project_name: ExPPO
+  experiment_name: qwen25-exppo
+  logger: [console]
+  n_gpus_per_node: 8
+  nnodes: 1
+  val_before_train: false
+  test_freq: -1
+  save_freq: 100
+  total_epochs: 30
+  total_training_steps: 900
+  default_local_dir: outputs/checkpoints/${trainer.experiment_name}
+  resume_mode: auto
+  # The paper's REPO-R implementation is in this FSDP actor path.
+  use_legacy_worker_impl: enable

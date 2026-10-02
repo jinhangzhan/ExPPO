@@ -1,0 +1,23 @@
+# Shared GPU inference and data stack; install through the environment files.
+torch==2.9.0
+torchvision==0.24.0
+torchaudio==2.9.0
+vllm==0.12.0
+transformers==4.57.1
+tokenizers==0.22.1
+ray[default]==2.49.1
+datasets==3.6.0
+numpy==1.26.4
+pandas==2.2.3
+pyarrow==20.0.0
+duckdb==1.2.0
+sympy==1.14.0
+pylatexenc==2.10
+sentencepiece==0.2.0
+packaging>=24,<27
+psutil>=6,<8
+PyYAML>=6,<7
+tqdm>=4.66,<5
+regex>=2024.11.6
+huggingface-hub>=0.34,<1
+ninja>=1.11
